@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Museo Virtual de Proyectos Scratch - Muestra Escolar</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            scratch: {
+              orange: '#FF8C1A',
+              yellow: '#FFD13B',
+              blue: '#4D97FF',
+              dark: '#1e293b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos de Museo y Luces de Foco */
+    body {
+      background: #00635D;
+      overflow-x: hidden;
+    }
+
+    /* Efecto de foco teatral cenital */
+    .spotlight {
+      background: radial-gradient(circle at 50% 15%, rgba(255, 235, 180, 0.22) 0%, rgba(15, 23, 42, 0) 70%);
+    }
+
+    /* Tarima y piso de museo con perspectiva */
+    .museum-floor {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      box-shadow: inset 0 20px 40px -10px rgba(0,0,0,0.8);
+      border-top: 4px solid #334155;
+    }
+
+    /* Brillo oscilante en marcos de exhibición */
+    @keyframes museumGlow {
+      0%, 100% {
+        box-shadow: 0 0 15px rgba(255, 140, 26, 0.3), 0 0 30px rgba(77, 151, 255, 0.2);
+        transform: translateY(0);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(255, 140, 26, 0.6), 0 0 45px rgba(77, 151, 255, 0.4);
+        transform: translateY(-4px);
+      }
+    }
+
+    .pulse-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .pulse-hover:hover {
+      animation: museumGlow 2.5s infinite ease-in-out;
+    }
+
+    /* Sombra del pedestal */
+    .pedestal-shadow {
+      filter: drop-shadow(0 15px 12px rgba(0,0,0,0.6));
+    }
+
+    /* Custom scrollbar para la vista embebida en CREA */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FF8C1A;
+    }
+  </style>
+</head>
+
+<body class="text-slate-100 min-h-screen flex flex-col justify-between select-none relative font-sans">
+  
+  <!-- Iluminación superior ambiente -->
+  <div class="fixed inset-0 spotlight pointer-events-none z-0"></div>
+
+  <!-- Barra Superior del Museo / CREA Header Compacto -->
+  <header class="relative z-20 border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md px-4 py-3 sm:px-8 flex items-center justify-between shadow-lg">
+    <div class="flex items-center space-x-3">
+      <!-- Icono Estilo Gatito Scratch / Medalla de Galería -->
+      <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-gray-200">
+  <img 
+    src="icono ceibal.png" 
+    alt="Icono Ceibal" 
+    class="w-7 h-7 object-contain"
+  />
+</div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">Muestra Interactiva</span>
+          <span id="badgeCount" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">6 Proyectos</span>
+        </div>
+        <h1 id="galleryTitle" class="text-lg sm:text-2xl font-bold font-display text-white tracking-tight line-clamp-1">
+          Exposición de Creaciones Digitales Scratch
+        </h1>
+      </div>
+    </div>
+
+    <!-- Acciones Docente / Controles -->
+    <div class="flex items-center gap-2">
+      <button onclick="openConfigModal()" title="Configuración de Proyectos (Para el docente)" class="px-3.5 py-2 text-xs sm:text-sm font-medium rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 transition border border-slate-700 text-slate-200 flex items-center gap-1.5 shadow">
+        <span>⚙️</span>
+        <span class="hidden sm:inline">Editar Muestra</span>
+      </button>
+      <button onclick="toggleAudioGuide()" id="audioGuideBtn" title="Guía de Sala" class="px-3 py-2 text-xs sm:text-sm font-medium rounded-xl bg-slate-800/80 hover:bg-slate-700 active:scale-95 transition border border-slate-700/80 text-amber-300 flex items-center gap-1">
+        <span>🔔</span>
+        <span class="hidden md:inline">Visita Guiada</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="relative z-10 flex-grow px-4 sm:px-8 py-6 max-w-7xl mx-auto w-full flex flex-col justify-center">
+    
+    <!-- Subtítulo o Descripción de la Sala -->
+    <div class="text-center mb-8 max-w-2xl mx-auto">
+      <p id="gallerySubtitle" class="text-slate-400 text-xs sm:text-sm md:text-base leading-relaxed">
+        Explora las salas interactivas. Toca o haz clic sobre cualquier obra para probar el juego, ver el código o interactuar con las creaciones de los alumnos.
+      </p>
+    </div>
+
+    <!-- Pared de Exhibición de Cuadros y Pantallas Arcade (Grid Responsivo) -->
+    <div id="exhibitsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-end">
+      <!-- Los cuadros se inyectan dinámicamente con JS -->
+    </div>
+
+  </main>
+
+  <!-- Piso de Museo con Zócalo y Placa de Sala -->
+  <footer class="relative z-10 museum-floor pt-5 pb-4 px-4 text-center text-xs text-slate-400">
+    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2 text-slate-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Sala 1 - Programación Creativa &middot; Plataforma CREA</span>
+      </div>
+      <div class="text-slate-500 text-[11px]">
+        Usa el botón "Editar Muestra" para agregar tus propios enlaces de Scratch.
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL DE VISUALIZACIÓN / JUEGO DE SCRATCH -->
+  <div id="scratchModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-3 sm:p-5 transition-opacity duration-200">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Encabezado del Modal -->
+      <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+        <div class="flex items-center gap-3">
+          <span id="modalIcon" class="text-2xl p-2 rounded-lg bg-slate-800 border border-slate-700">🎮</span>
+          <div>
+            <h3 id="modalTitle" class="text-base sm:text-xl font-bold font-display text-white line-clamp-1">Título del Proyecto</h3>
+            <p id="modalAuthor" class="text-xs text-orange-400 font-medium">Por: Autor</p>
+          </div>
+        </div>
+        <button onclick="closeScratchModal()" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-red-500/20 hover:text-red-400 text-slate-300 flex items-center justify-center transition" aria-label="Cerrar">
+          ✕
+        </button>
+      </div>
+
+      <!-- Contenido Central: Iframe Embebido de Scratch -->
+      <div class="relative bg-black flex-1 flex items-center justify-center min-h-[340px] sm:min-h-[420px] overflow-hidden">
+        <!-- Indicador de Carga -->
+        <div id="iframeLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 text-slate-400 z-10 gap-3">
+          <div class="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-xs tracking-wider uppercase">Cargando escenario de Scratch...</p>
+        </div>
+
+        <!-- Iframe Seguro de Scratch -->
+        <iframe 
+          id="scratchIframe" 
+          src="" 
+          class="w-full h-[360px] sm:h-[430px] border-0" 
+          allowtransparency="true" 
+          allowfullscreen="true" 
+          webkitallowfullscreen="true" 
+          mozallowfullscreen="true"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          loading="lazy">
+        </iframe>
+      </div>
+
+      <!-- Barra de detalles y Botones de Acción -->
+      <div class="p-4 sm:p-5 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="w-full sm:w-2/3 text-left">
+          <p id="modalDescription" class="text-xs sm:text-sm text-slate-300 line-clamp-2">
+            Descripción del proyecto o instrucciones sobre cómo jugar.
+          </p>
+        </div>
+        
+        <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+          <!-- Botón de apertura en nueva pestaña -->
+          <a id="modalExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none text-center px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-1.5">
+            <span>🚀 Abrir en Scratch</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+          <button onclick="closeScratchModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs sm:text-sm transition">
+            Volver a Sala
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIGURACIÓN DOCENTE -->
+  <div id="configModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[90vh]">
+      
+      <!-- Cabecera de Configuración -->
+      <div class="px-6 py-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">🛠️</span>
+          <div>
+            <h3 class="text-lg font-bold font-display text-white">Panel de Docente: Editar Muestra</h3>
+            <p class="text-xs text-slate-400">Personaliza los títulos y proyectos de la exposición en CREA</p>
+          </div>
+        </div>
+        <button onclick="closeConfigModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center transition">✕</button>
+      </div>
+
+      <!-- Formulario y lista de obras -->
+      <div class="p-6 overflow-y-auto space-y-6">
+        
+        <!-- Datos de la Exposición -->
+        <div class="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+          <label class="block text-xs uppercase font-bold text-orange-400 tracking-wider">Información de la Exposición</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs text-slate-400">Título de la Muestra:</label>
+              <input id="inputGalleryTitle" type="text" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Subtítulo / Instrucciones:</label>
+              <input id="inputGallerySubtitle" type="text" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de Proyectos Activos -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider">Obras en Exhibición</h4>
+            <button onclick="addNewProjectRow()" class="text-xs px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-medium flex items-center gap-1 shadow">
+              <span>+</span> Añadir Proyecto
+            </button>
+          </div>
+
+          <div id="projectsListContainer" class="space-y-4">
+            <!-- Items de proyectos dinámicos -->
+          </div>
+        </div>
+
+        <!-- Herramientas de respaldo / exportación -->
+        <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div>
+            <p class="font-medium text-slate-300">💡 Almacenamiento local</p>
+            <p>Los cambios se guardan automáticamente en tu navegador. Puedes exportar el JSON para llevarlo a otra computadora.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="exportDataJSON()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 whitespace-nowrap">
+              📋 Copiar JSON
+            </button>
+            <button onclick="restoreDefaults()" class="px-3 py-2 bg-red-950/60 hover:bg-red-900/60 text-red-300 rounded-lg border border-red-800/50 whitespace-nowrap">
+              Restablecer Ejemplos
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pie del Panel -->
+      <div class="px-6 py-4 bg-slate-950 border-t border-slate-800 flex justify-end gap-3">
+        <button onclick="closeConfigModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl">Cancelar</button>
+        <button onclick="saveConfigChanges()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/20">Guardar Cambios</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 z-50 bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 shadow-2xl translate-y-20 opacity-0 transition-all duration-300 pointer-events-none text-xs flex items-center gap-2">
+    <span id="toastIcon">✅</span>
+    <span id="toastMessage">Acción completada</span>
+  </div>
+
+  <script>
+    // Proyectos precargados de Scratch con IDs reales y conocidos para probar de inmediato
+    const DEFAULT_PROJECTS = [
+      {
+        id: "1",
+        title: "El Laberinto Encantado",
+        author: "Sofía (6° Año)",
+        scratchId: "10128407", // Clásico Pac-Man o Laberinto Scratch
+        icon: "🧭",
+        frameColor: "amber",
+        description: "Usa las flechas del teclado para guiar al personaje hasta la salida evitando las trampas mágicas."
+      },
+      {
+        id: "2",
+        title: "Banda Musical Interactiva",
+        author: "Mateo & Lucas (5° Año)",
+        scratchId: "60917032", // Animación musical Scratch
+        icon: "🎵",
+        frameColor: "blue",
+        description: "Presiona las distintas teclas para activar instrumentos, luces de concierto y ritmos de batería."
+      },
+      {
+        id: "3",
+        title: "Aventura Galáctica: Saltador",
+        author: "Valentina (1° Liceo)",
+        scratchId: "104", // Scratch Cat Runner
+        icon: "🚀",
+        frameColor: "purple",
+        description: "Un trepidante juego de plataformas espaciales donde debes esquivar asteroides y recolectar estrellas."
+      },
+      {
+        id: "4",
+        title: "Caleidoscopio Geométrico",
+        author: "Ignacio (Taller Robótica)",
+        scratchId: "13511384", // Proyecto de lápiz y patrones de dibujo
+        icon: "🎨",
+        frameColor: "emerald",
+        description: "Arte generativo programado con el lápiz de Scratch. Dibuja mandalas y fractales con el mouse."
+      },
+      {
+        id: "5",
+        title: "Quiz: Cuidado del Medioambiente",
+        author: "Equipo Eco-Ciencias",
+        scratchId: "2201948", // Preguntas y respuestas
+        icon: "🌱",
+        frameColor: "green",
+        description: "Trivia educativa sobre reciclaje y energías renovables en Uruguay. ¿Podrás responder todo bien?"
+      },
+      {
+        id: "6",
+        title: "Simulador de Gravedad y Física",
+        author: "Camila (Club de Ciencias)",
+        scratchId: "1165600", // Simulación física
+        icon: "⚙️",
+        frameColor: "cyan",
+        description: "Experimento interactivo que simula colisiones elásticas y atracción gravitacional en tiempo real."
+      }
+    ];
+
+    const STORAGE_KEY = "museo_scratch_data_v1";
+
+    let museumState = {
+      title: "Exposición de Creaciones Digitales Scratch",
+      subtitle: "Explora las obras de la galería. Haz clic sobre cualquier pedestal para probar el videojuego, ver su funcionamiento y aprender con Scratch.",
+      projects: []
+    };
+
+    function loadState() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          museumState = JSON.parse(stored);
+        } else {
+          museumState.projects = [...DEFAULT_PROJECTS];
+        }
+      } catch (e) {
+        console.error("Error al cargar localStorage, usando valores predeterminados", e);
+        museumState.projects = [...DEFAULT_PROJECTS];
+      }
+      renderGallery();
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(museumState));
+      } catch (e) {
+        console.warn("No se pudo guardar en localStorage", e);
+      }
+    }
+
+    function showToast(msg, icon = "✅") {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').innerText = msg;
+      document.getElementById('toastIcon').innerText = icon;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    function toggleAudioGuide() {
+      const tips = [
+        "💡 Consejo CREA: Puedes usar la tecla Espacio o las flechas de dirección cuando el juego de Scratch esté en foco.",
+        "🎨 Recuerda que en Scratch puedes pulsar 'Ver dentro' para descubrir cómo están programados los bloques.",
+        "🏫 Si eres docente, pulsa el botón 'Editar Muestra' para colocar los proyectos de tus propios estudiantes."
+      ];
+      const randomTip = tips[Math.floor(Math.random() * tips.length)];
+      showToast(randomTip, "🎧");
+    }
+
+    function renderGallery() {
+      // Actualizar Títulos de Sala
+      document.getElementById('galleryTitle').innerText = museumState.title || "Muestra de Proyectos Scratch";
+      document.getElementById('gallerySubtitle').innerText = museumState.subtitle || "";
+      document.getElementById('badgeCount').innerText = `${museumState.projects.length} Proyectos`;
+
+      const grid = document.getElementById('exhibitsGrid');
+      grid.innerHTML = "";
+
+      if (museumState.projects.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-16 text-center">
+            <div class="text-4xl mb-3">🖼️</div>
+            <h3 class="text-lg font-bold text-slate-300">No hay proyectos en exhibición</h3>
+            <p class="text-slate-500 text-sm mt-1">Haz clic en 'Editar Muestra' para añadir obras.</p>
+          </div>
+        `;
+        return;
+      }
+
+      museumState.projects.forEach((proj, index) => {
+        // Generador de color de marco temático
+        const frameGradients = {
+          amber: 'from-amber-600/80 via-orange-500/60 to-yellow-600/80',
+          blue: 'from-blue-600/80 via-indigo-500/60 to-cyan-600/80',
+          purple: 'from-purple-600/80 via-pink-500/60 to-indigo-600/80',
+          emerald: 'from-emerald-600/80 via-teal-500/60 to-green-600/80',
+          green: 'from-green-600/80 via-emerald-500/60 to-lime-600/80',
+          cyan: 'from-cyan-600/80 via-sky-500/60 to-teal-600/80',
+        };
+        const gradientClass = frameGradients[proj.frameColor] || 'from-amber-600/80 via-orange-500/60 to-yellow-600/80';
+
+        const card = document.createElement('div');
+        card.className = "flex flex-col items-center group cursor-pointer transform transition-all duration-300 hover:-translate-y-2";
+        card.onclick = () => openScratchModal(proj);
+
+        // Estructura de obra: Foco de luz + Marco de Cuadro/Arcade + Placa de Museo con pedestal
+        card.innerHTML = `
+          <!-- Cono de luz cenital proyectado sobre la obra -->
+          <div class="w-28 h-8 rounded-full bg-orange-400/10 blur-xl mb-1 group-hover:bg-orange-400/25 transition"></div>
+
+          <!-- Marco de Exhibición (Estilo Museo de Arte Digital / Arcade) -->
+          <div class="w-full relative rounded-2xl p-3 bg-gradient-to-b ${gradientClass} shadow-2xl pulse-hover border border-slate-700/60">
+            
+            <!-- Marco interior / Pantalla con efecto de cristal -->
+            <div class="relative bg-slate-950 rounded-xl overflow-hidden aspect-[4/3] flex flex-col items-center justify-center p-4 border border-black/80">
+              
+              <!-- Fondo pixel/mesh decorativo -->
+              <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+              
+              <!-- Hotspot / Brillo animado de 'Tócame' -->
+              <div class="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/20 border border-orange-500/40 text-[10px] font-bold text-orange-300">
+                <span class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-ping"></span>
+                <span>JUGAR</span>
+              </div>
+
+              <!-- Número de sala / Obra -->
+              <div class="absolute top-3 left-3 text-[11px] font-mono text-slate-500 font-bold">
+                #0${index + 1}
+              </div>
+
+              <!-- Icono ilustrativo y Arte central -->
+              <div class="relative z-10 text-5xl sm:text-6xl group-hover:scale-110 transition duration-300 filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">
+                ${proj.icon || '🕹️'}
+              </div>
+
+              <div class="relative z-10 mt-3 text-center px-2">
+                <h4 class="font-bold text-white text-sm sm:text-base font-display line-clamp-1 group-hover:text-orange-300 transition">
+                  ${proj.title}
+                </h4>
+                <p class="text-[11px] text-slate-400 font-medium line-clamp-1">
+                  ${proj.author}
+                </p>
+              </div>
+
+              <!-- Reflejo brillante de cristal de museo -->
+              <div class="absolute -top-12 -left-12 w-32 h-32 bg-white/5 rotate-45 pointer-events-none rounded-2xl"></div>
+            </div>
+          </div>
+
+          <!-- Placa Dorada de Museo & Pedestal Escénico -->
+          <div class="w-4/5 -mt-2 bg-gradient-to-b from-slate-800 to-slate-900 border border-amber-600/40 rounded-b-xl px-3 py-2 text-center pedestal-shadow z-10 group-hover:border-amber-400/70 transition">
+            <div class="text-[10px] text-amber-400/90 font-mono tracking-widest uppercase">Obra #${index + 1} &bull; Scratch</div>
+            <div class="text-xs font-semibold text-slate-200 truncate">${proj.title}</div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function cleanScratchId(input) {
+      if (!input) return "10128407";
+      // Si el usuario pega la URL completa (ej: https://scratch.mit.edu/projects/123456789/)
+      const match = input.toString().match(/projects\/(\d+)/);
+      if (match && match[1]) {
+        return match[1];
+      }
+      // O si solo introduce los números
+      const digitsOnly = input.toString().replace(/\D/g, '');
+      return digitsOnly || "10128407";
+    }
+
+    function openScratchModal(proj) {
+      const modal = document.getElementById('scratchModal');
+      const sId = cleanScratchId(proj.scratchId);
+      
+      document.getElementById('modalTitle').innerText = proj.title;
+      document.getElementById('modalAuthor').innerText = `Creado por: ${proj.author}`;
+      document.getElementById('modalDescription').innerText = proj.description || "Diviértete explorando este proyecto programado en Scratch.";
+      document.getElementById('modalIcon').innerText = proj.icon || "🎮";
+
+      // Enlaces externo e Iframe de Scratch
+      const externalUrl = `https://scratch.mit.edu/projects/${sId}/`;
+      const embedUrl = `https://scratch.mit.edu/projects/${sId}/embed`;
+
+      document.getElementById('modalExternalLink').href = externalUrl;
+
+      // Cargar iframe con feedback de carga
+      const loader = document.getElementById('iframeLoader');
+      const iframe = document.getElementById('scratchIframe');
+      loader.classList.remove('hidden');
+
+      iframe.src = embedUrl;
+      iframe.onload = () => {
+        loader.classList.add('hidden');
+      };
+
+      // Mostrar modal
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeScratchModal() {
+      const modal = document.getElementById('scratchModal');
+      const iframe = document.getElementById('scratchIframe');
+      iframe.src = ""; // Detener audio y ejecución del juego
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    // Cerrar al pulsar Escape
+    window.addEventListener('keydown', (e) => {
+      if (e.key === "Escape") {
+        closeScratchModal();
+        closeConfigModal();
+      }
+    });
+
+    function openConfigModal() {
+      const modal = document.getElementById('configModal');
+      document.getElementById('inputGalleryTitle').value = museumState.title;
+      document.getElementById('inputGallerySubtitle').value = museumState.subtitle;
+      
+      renderConfigProjectRows();
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeConfigModal() {
+      const modal = document.getElementById('configModal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    function renderConfigProjectRows() {
+      const container = document.getElementById('projectsListContainer');
+      container.innerHTML = "";
+
+      museumState.projects.forEach((proj, idx) => {
+        const row = document.createElement('div');
+        row.className = "p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-3 relative group";
+        row.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-400">Obra #${idx + 1}</span>
+            <button onclick="removeProjectRow(${idx})" class="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 rounded bg-red-950/30 border border-red-800/40">
+              Eliminar
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400">Título del Juego/Proyecto:</label>
+              <input type="text" value="${escapeHtml(proj.title)}" onchange="updateProjectField(${idx}, 'title', this.value)" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400">Estudiante o Autor:</label>
+              <input type="text" value="${escapeHtml(proj.author)}" onchange="updateProjectField(${idx}, 'author', this.value)" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400">ID o Link de Scratch:</label>
+              <input type="text" value="${escapeHtml(proj.scratchId)}" placeholder="ej: 10128407" onchange="updateProjectField(${idx}, 'scratchId', this.value)" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white font-mono">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400">Emoji / Ícono:</label>
+              <input type="text" value="${escapeHtml(proj.icon || '🎮')}" onchange="updateProjectField(${idx}, 'icon', this.value)" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white text-center">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400">Color Marco:</label>
+              <select onchange="updateProjectField(${idx}, 'frameColor', this.value)" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white">
+                <option value="amber" ${proj.frameColor === 'amber' ? 'selected' : ''}>Dorado/Ámbar</option>
+                <option value="blue" ${proj.frameColor === 'blue' ? 'selected' : ''}>Azul Scratch</option>
+                <option value="purple" ${proj.frameColor === 'purple' ? 'selected' : ''}>Púrpura Mágico</option>
+                <option value="emerald" ${proj.frameColor === 'emerald' ? 'selected' : ''}>Esmeralda</option>
+                <option value="green" ${proj.frameColor === 'green' ? 'selected' : ''}>Verde Neón</option>
+                <option value="cyan" ${proj.frameColor === 'cyan' ? 'selected' : ''}>Cian Galáctico</option>
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="text-[11px] text-slate-400">Breve descripción / Controles:</label>
+              <input type="text" value="${escapeHtml(proj.description || '')}" onchange="updateProjectField(${idx}, 'description', this.value)" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white">
+            </div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function updateProjectField(index, field, value) {
+      if (museumState.projects[index]) {
+        museumState.projects[index][field] = value;
+      }
+    }
+
+    function addNewProjectRow() {
+      const newProj = {
+        id: Date.now().toString(),
+        title: "Nuevo Proyecto Scratch",
+        author: "Alumno/a",
+        scratchId: "10128407",
+        icon: "🎮",
+        frameColor: "amber",
+        description: "Haz clic para probar esta creación realizada en Scratch."
+      };
+      museumState.projects.push(newProj);
+      renderConfigProjectRows();
+    }
+
+    function removeProjectRow(index) {
+      museumState.projects.splice(index, 1);
+      renderConfigProjectRows();
+    }
+
+    function saveConfigChanges() {
+      const newTitle = document.getElementById('inputGalleryTitle').value.trim();
+      const newSub = document.getElementById('inputGallerySubtitle').value.trim();
+
+      if (newTitle) museumState.title = newTitle;
+      museumState.subtitle = newSub;
+
+      saveState();
+      renderGallery();
+      closeConfigModal();
+      showToast("¡Muestra actualizada correctamente!");
+    }
+
+    function restoreDefaults() {
+      museumState.title = "Exposición de Creaciones Digitales Scratch";
+      museumState.subtitle = "Explora las salas interactivas. Toca o haz clic sobre cualquier obra para probar el juego, ver el código o interactuar con las creaciones de los alumnos.";
+      museumState.projects = JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
+      saveState();
+      renderConfigProjectRows();
+      renderGallery();
+      showToast("Se restablecieron los ejemplos predeterminados");
+    }
+
+    function exportDataJSON() {
+      const jsonStr = JSON.stringify(museumState, null, 2);
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = jsonStr;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+        showToast("JSON copiado al portapapeles 📋");
+      } catch (err) {
+        showToast("Error al copiar texto", "❌");
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    window.onload = function() {
+      loadState();
+    };
+  </script>
+</body>
+</html>
