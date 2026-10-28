@@ -307,69 +307,114 @@
   </div>
 
   <script>
-    // Proyectos precargados de Scratch con IDs reales y conocidos para probar de inmediato
+    // Datos de la muestra publicados para que todos los visitantes vean la misma versión.
     const DEFAULT_PROJECTS = [
       {
-        id: "1",
-        title: "El Laberinto Encantado",
-        author: "Sofía (6° Año)",
-        scratchId: "10128407", // Clásico Pac-Man o Laberinto Scratch
-        icon: "🧭",
-        frameColor: "amber",
-        description: "Usa las flechas del teclado para guiar al personaje hasta la salida evitando las trampas mágicas."
+            "id": "1",
+            "title": "Obra musical: EMALE",
+            "author": "Emilia y Alexia",
+            "scratchId": "1379189159",
+            "icon": "⭐",
+            "frameColor": "amber",
+            "description": "Para interactuar debes cliquear sobre cada estrella"
       },
       {
-        id: "2",
-        title: "Banda Musical Interactiva",
-        author: "Mateo & Lucas (5° Año)",
-        scratchId: "60917032", // Animación musical Scratch
-        icon: "🎵",
-        frameColor: "blue",
-        description: "Presiona las distintas teclas para activar instrumentos, luces de concierto y ritmos de batería."
+            "id": "2",
+            "title": "",
+            "author": "Lucas y Guillermo",
+            "scratchId": "1391219561",
+            "icon": "🎵",
+            "frameColor": "blue",
+            "description": ""
       },
       {
-        id: "3",
-        title: "Aventura Galáctica: Saltador",
-        author: "Valentina (1° Liceo)",
-        scratchId: "104", // Scratch Cat Runner
-        icon: "🚀",
-        frameColor: "purple",
-        description: "Un trepidante juego de plataformas espaciales donde debes esquivar asteroides y recolectar estrellas."
+            "id": "3",
+            "title": "Noche estrellada",
+            "author": "Karen, Mía",
+            "scratchId": "1379187692",
+            "icon": "🌃",
+            "frameColor": "purple",
+            "description": "Se interactúa cliqueando la bandera verde, el QR y tecla espacio"
       },
       {
-        id: "4",
-        title: "Caleidoscopio Geométrico",
-        author: "Ignacio (Taller Robótica)",
-        scratchId: "13511384", // Proyecto de lápiz y patrones de dibujo
-        icon: "🎨",
-        frameColor: "emerald",
-        description: "Arte generativo programado con el lápiz de Scratch. Dibuja mandalas y fractales con el mouse."
+            "id": "4",
+            "title": "Bailarín polar",
+            "author": "Antonella y Ahidana",
+            "scratchId": "1388791586",
+            "icon": "🎵",
+            "frameColor": "emerald",
+            "description": "Se interactúa presionando la banderita verde"
       },
       {
-        id: "5",
-        title: "Quiz: Cuidado del Medioambiente",
-        author: "Equipo Eco-Ciencias",
-        scratchId: "2201948", // Preguntas y respuestas
-        icon: "🌱",
-        frameColor: "green",
-        description: "Trivia educativa sobre reciclaje y energías renovables en Uruguay. ¿Podrás responder todo bien?"
+            "id": "1792511182471",
+            "title": "",
+            "author": "Luana y Luján",
+            "scratchId": "1386298988",
+            "icon": "🎵",
+            "frameColor": "amber",
+            "description": ""
       },
       {
-        id: "6",
-        title: "Simulador de Gravedad y Física",
-        author: "Camila (Club de Ciencias)",
-        scratchId: "1165600", // Simulación física
-        icon: "⚙️",
-        frameColor: "cyan",
-        description: "Experimento interactivo que simula colisiones elásticas y atracción gravitacional en tiempo real."
+            "id": "1792511242572",
+            "title": "La nueva escuela",
+            "author": "Logan, Thiago y Maikol",
+            "scratchId": "1393779005",
+            "icon": "🎵",
+            "frameColor": "amber",
+            "description": "Sin interacción"
+      },
+      {
+            "id": "1792519091096",
+            "title": "Piano digital",
+            "author": "Lucas y Nahitan",
+            "scratchId": "1391220042",
+            "icon": "🎹",
+            "frameColor": "amber",
+            "description": "Haz clic en las teclas en el orden que quieras"
+      },
+      {
+            "id": "1792519449928",
+            "title": "Nuevo Proyecto Scratch",
+            "author": "Alumno/a",
+            "scratchId": "",
+            "icon": "🎮",
+            "frameColor": "amber",
+            "description": "Sin interacción"
+      },
+      {
+            "id": "1792519458620",
+            "title": "Dragón de colores",
+            "author": "Mateo y Tadeo",
+            "scratchId": "1388769761",
+            "icon": "🐉",
+            "frameColor": "amber",
+            "description": "Haz clic en cualquier tecla"
+      },
+      {
+            "id": "1792519459891",
+            "title": "Un episodio de la fiebre amarilla en Buenos Aires",
+            "author": "Macarena y Julieta",
+            "scratchId": "1379187805",
+            "icon": "🖼️",
+            "frameColor": "amber",
+            "description": "Para probar esta creación cliquea la bandera verde"
+      },
+      {
+            "id": "1792519460987",
+            "title": "Obra musical",
+            "author": "Gabriel y Gerson",
+            "scratchId": "1388773053",
+            "icon": "🎵",
+            "frameColor": "amber",
+            "description": "Presiona alternadamente: espacio, flecha arriba y la trompeta"
       }
-    ];
+];
 
-    const STORAGE_KEY = "museo_scratch_data_v1";
+    const STORAGE_KEY = "museo_scratch_data_v2";
 
     let museumState = {
-      title: "Exposición de Creaciones Digitales Scratch",
-      subtitle: "Explora las obras de la galería. Haz clic sobre cualquier pedestal para probar el videojuego, ver su funcionamiento y aprender con Scratch.",
+      title: "Sinfonía de luz y sonido",
+      subtitle: "Explora las obras de la galería haciendo clic sobre la palabra jugar.",
       projects: []
     };
 
@@ -686,8 +731,8 @@
     }
 
     function restoreDefaults() {
-      museumState.title = "Exposición de Creaciones Digitales Scratch";
-      museumState.subtitle = "Explora las salas interactivas. Toca o haz clic sobre cualquier obra para probar el juego, ver el código o interactuar con las creaciones de los alumnos.";
+      museumState.title = "Sinfonía de luz y sonido";
+      museumState.subtitle = "Explora las obras de la galería haciendo clic sobre la palabra jugar.";
       museumState.projects = JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
       saveState();
       renderConfigProjectRows();
